@@ -250,6 +250,39 @@ def generate_calls_eth_get_logs(
     ]
 
 
+def generate_calls_eth_get_logs_no_filter(
+    n_calls: int | None = None,
+    *,
+    contract_address: str | None = None,
+    topics: typing.Sequence[str | None] | None = None,
+    block_ranges: typing.Sequence[tuple[int, int]] | None = None,
+    network: str | None = None,
+    random_seed: spec.RandomSeed | None = None,
+) -> typing.Sequence[spec.Call]:
+    import ctc.rpc
+
+    if block_ranges is None:
+        if n_calls is None:
+            raise Exception('must specify more parameters')
+        block_ranges = block_generators.generate_block_ranges(
+            start_block=10_000_000,
+            end_block=16_000_000,
+            n=n_calls,
+            range_size=1,
+            random_seed=random_seed,
+            network=network,
+        )
+    return [
+        ctc.rpc.construct_eth_get_logs(
+            address=contract_address,
+            topics=topics,
+            start_block=start_block,
+            end_block=end_block,
+        )
+        for start_block, end_block in block_ranges
+    ]
+
+
 #
 # # contracts
 #
